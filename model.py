@@ -62,13 +62,14 @@ def generator(samples, batch_size=32, in_train=False):
 # compile and train the model using the generator function
 batch_size = 32
 train_generator = generator(train_samples, batch_size=batch_size,
-                            in_train=True)
+                            in_train=False)
 validation_generator = generator(validation_samples, batch_size=batch_size,
-                                 in_train=True)
+                                 in_train=False)
 
 from keras.models import Sequential, Model
-from keras.layers import Cropping2D, Convolution2D, Dense, Flatten, Lambda, Dropout
-from  keras.callbacks import ModelCheckpoint, Callback
+from keras.layers import Cropping2D, Convolution2D, Dense, Flatten
+from keras.layers import BatchNormalization, Lambda, Dropout
+from keras.callbacks import ModelCheckpoint, Callback
 
 class LossHistory(Callback):
     def on_train_begin(self, logs={}):
@@ -91,14 +92,17 @@ model.add(Convolution2D(64, (3, 3), activation='relu'))
 model.add(Convolution2D(32, (3, 3), activation='relu'))
 model.add(Convolution2D(32, (3, 3), activation='relu'))
 model.add(Flatten())
+model.add(BatchNormalization())
+model.add(Dense(100, activation='relu'))
 model.add(Dropout(0.5))
-model.add(Dense(100))
+model.add(BatchNormalization())
+model.add(Dense(50, activation='relu'))
 model.add(Dropout(0.5))
-model.add(Dense(50))
+model.add(BatchNormalization())
 model.add(Dense(1, activation='softmax'))
 
 model.compile(loss='mse', optimizer='adam')
-checkpointer =ModelCheckpoint(filepath="model_epoch{epoch:02d}.h5", verbose=1,
+checkpointer = ModelCheckpoint(filepath="model_epoch{epoch:02d}.h5", verbose=1,
                               monitor='val_loss', save_best_only=True,
                               mode='min')
 history = LossHistory()
