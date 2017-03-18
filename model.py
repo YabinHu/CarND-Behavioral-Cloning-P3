@@ -24,7 +24,7 @@ def generator(samples, batch_size=32, in_train=False):
 
             images = []
             angles = []
-            correction = 0.25
+            correction = 0.2
             for batch_sample in batch_samples:
                 center_angle = float(batch_sample[3])
                 name = './data/IMG/'+batch_sample[0].split('/')[-1]
