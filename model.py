@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 
 lines = []
-with open('data/data/driving_log.csv') as f:
+with open('data/driving_log.csv') as f:
     reader = csv.reader(f)
     for line in reader:
         lines.append(line)
@@ -27,7 +27,7 @@ def generator(samples, batch_size=32, in_train=False):
             correction = 0.25
             for batch_sample in batch_samples:
                 center_angle = float(batch_sample[3])
-                name = './data/data/img/'+batch_sample[0].split('/')[-1]
+                name = './data/IMG/'+batch_sample[0].split('/')[-1]
                 center_image = cv2.imread(name)
                 if random.randint(0, 100) % 3 == 0: # flil 1/3 samples
                     center_image = np.fliplr(center_image)
@@ -36,7 +36,7 @@ def generator(samples, batch_size=32, in_train=False):
                 angles.append(center_angle)
 
                 if in_train:
-                    name = './data/data/img/'+batch_sample[1].split('/')[-1]
+                    name = './data/IMG/'+batch_sample[1].split('/')[-1]
                     left_image = cv2.imread(name)
                     left_angle = center_angle + correction
                     if random.randint(0, 100) % 3 == 0:
@@ -45,7 +45,7 @@ def generator(samples, batch_size=32, in_train=False):
                     images.append(left_image)
                     angles.append(left_angle)
 
-                    name = './data/data/img/'+batch_sample[2].split('/')[-1]
+                    name = './data/IMG/'+batch_sample[2].split('/')[-1]
                     right_image = cv2.imread(name)
                     right_angle = center_angle - correction
                     if random.randint(0, 100) % 3 == 0:
