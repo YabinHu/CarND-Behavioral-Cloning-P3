@@ -95,7 +95,7 @@ model.add(Dropout(0.5))
 model.add(Dense(100))
 model.add(Dropout(0.5))
 model.add(Dense(50))
-model.add(Dense(1))
+model.add(Dense(1, activation='softmax'))
 
 model.compile(loss='mse', optimizer='adam')
 checkpointer =ModelCheckpoint(filepath="model_epoch{epoch:02d}.h5", verbose=1,
