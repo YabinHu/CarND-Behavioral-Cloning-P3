@@ -29,7 +29,7 @@ def generator(samples, batch_size=32, in_train=False):
                 center_angle = float(batch_sample[3])
                 name = './data/IMG/'+batch_sample[0].split('/')[-1]
                 center_image = cv2.imread(name)
-                if random.randint(0, 100) % 3 == 0: # flil 1/3 samples
+                if random.randint(0, 100) % 3 == 0: # flip 1/3 samples
                     center_image = np.fliplr(center_image)
                     center_angle = -center_angle
                 images.append(center_image)
