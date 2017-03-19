@@ -86,9 +86,6 @@ model = Sequential()
 model.add(Cropping2D(cropping=((70, 20), (0, 0)), input_shape=(row, col, ch)))
 model.add(Lambda(lambda x: x / 127.5 - 0.5, input_shape=(row - 90, col, ch),
                  output_shape=(row - 90, col, ch)))
-model.add(Lambda(lambda x: K.resize_images(x, new_height, new_width, 'channels_last'),
-                 input_shape=(row - 90, col, ch),
-                 output_shape=(new_height, new_width, ch)))
 
 model.add(Convolution2D(3, (1, 1), padding='same', name='color_conv'))
 model.add(ZeroPadding2D((2, 2)))
