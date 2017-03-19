@@ -62,7 +62,7 @@ def generator(samples, batch_size=32, in_train=False):
 # compile and train the model using the generator function
 batch_size = 32
 train_generator = generator(train_samples, batch_size=batch_size,
-                            in_train=False)
+                            in_train=True)
 validation_generator = generator(validation_samples, batch_size=batch_size,
                                  in_train=False)
 
