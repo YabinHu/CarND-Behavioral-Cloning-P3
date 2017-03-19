@@ -84,7 +84,7 @@ new_height, new_width = 64, 64
 
 model = Sequential()
 model.add(Cropping2D(cropping=((70, 20), (0, 0)), input_shape=(row, col, ch)))
-model.add(Lambda(lambda x: x / 127.5 - 0.5, input_shape=(row - 90, col, ch),
+model.add(Lambda(lambda x: x / 127.5 - 1.0, input_shape=(row - 90, col, ch),
                  output_shape=(row - 90, col, ch)))
 
 model.add(Convolution2D(3, (1, 1), padding='same', name='color_conv'))
