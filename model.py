@@ -119,7 +119,7 @@ model.add(BatchNormalization())
 model.add(Dense(50, activation='relu'))
 model.add(Dropout(0.5))
 model.add(BatchNormalization())
-model.add(Dense(1, activation='softmax'))
+model.add(Dense(1, activation='relu'))
 
 model.compile(loss='mse', optimizer='adam')
 checkpointer = ModelCheckpoint(filepath="model_epoch{epoch:02d}.h5", verbose=1,
