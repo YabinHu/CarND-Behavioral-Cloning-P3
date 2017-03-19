@@ -68,6 +68,7 @@ validation_generator = generator(validation_samples, batch_size=batch_size,
 
 from keras.models import Sequential, Model
 from keras.layers import Cropping2D, Convolution2D, Dense, Flatten
+from keras.layers import ZeroPadding2D, MaxPooling2D
 from keras.layers import BatchNormalization, Lambda, Dropout
 from keras.callbacks import ModelCheckpoint, Callback
 from keras import backend as K
@@ -80,7 +81,6 @@ class LossHistory(Callback):
         self.losses.append(logs.get('loss'))
 
 row, col, ch = 160, 320, 3 # For tf backend
-new_height, new_width = 64, 64
 
 model = Sequential()
 model.add(Cropping2D(cropping=((70, 20), (0, 0)), input_shape=(row, col, ch)))
@@ -120,8 +120,8 @@ model.add(Dense(1))
 
 model.compile(loss='mse', optimizer='adam')
 checkpointer = ModelCheckpoint(filepath="model_epoch{epoch:02d}.h5", verbose=1,
-                              monitor='val_loss', save_best_only=True,
-                              mode='min')
+                               monitor='val_loss', save_best_only=True,
+                               mode='min')
 history = LossHistory()
 model.fit_generator(train_generator,
                     steps_per_epoch=len(train_samples)//batch_size,
