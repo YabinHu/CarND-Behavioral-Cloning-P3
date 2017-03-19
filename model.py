@@ -70,6 +70,7 @@ from keras.models import Sequential, Model
 from keras.layers import Cropping2D, Convolution2D, Dense, Flatten
 from keras.layers import BatchNormalization, Lambda, Dropout
 from keras.callbacks import ModelCheckpoint, Callback
+from keras import backend as K
 
 class LossHistory(Callback):
     def on_train_begin(self, logs={}):
@@ -79,18 +80,37 @@ class LossHistory(Callback):
         self.losses.append(logs.get('loss'))
 
 row, col, ch = 160, 320, 3 # For tf backend
+new_height, new_width = 64, 64
 
 model = Sequential()
-model.add(Lambda(lambda x: x / 255.0 - 0.5, input_shape=(row, col, ch),
-                 output_shape=(row, col, ch)))
-model.add(Cropping2D(cropping=((70, 20), (0, 0))))
+model.add(Cropping2D(cropping=((70, 20), (0, 0)), input_shape=(row, col, ch)))
+model.add(Lambda(lambda x: x / 127.5 - 0.5, input_shape=(row - 90, col, ch),
+                 output_shape=(row - 90, col, ch)))
+model.add(Lambda(lambda x: K.resize_images(x, new_height, new_width, 'channels_last'),
+                 input_shape=(row - 90, col, ch),
+                 output_shape=(new_height, new_width, ch)))
+
+model.add(Convolution2D(3, (1, 1), padding='same', name='color_conv'))
+model.add(ZeroPadding2D((2, 2)))
 model.add(Convolution2D(24, (5, 5), strides=(2, 2), activation='relu'))
+model.add(ZeroPadding2D((2, 2)))
 model.add(Convolution2D(36, (5, 5), strides=(2, 2), activation='relu'))
+model.add(MaxPooling2D((2, 2), strides=(2, 2)))
+
+model.add(ZeroPadding2D((1, 1)))
 model.add(Convolution2D(64, (3, 3), activation='relu'))
+model.add(ZeroPadding2D((1, 1)))
 model.add(Convolution2D(64, (3, 3), activation='relu'))
+model.add(ZeroPadding2D((1, 1)))
 model.add(Convolution2D(64, (3, 3), activation='relu'))
+model.add(MaxPooling2D((2, 2), strides=(2, 2)))
+
+model.add(ZeroPadding2D((1, 1)))
 model.add(Convolution2D(32, (3, 3), activation='relu'))
+model.add(ZeroPadding2D((1, 1)))
 model.add(Convolution2D(32, (3, 3), activation='relu'))
+model.add(MaxPooling2D((2, 2), strides=(2, 2)))
+
 model.add(Flatten())
 model.add(BatchNormalization())
 model.add(Dense(100, activation='relu'))
