@@ -113,13 +113,13 @@ model.add(MaxPooling2D((2, 2), strides=(2, 2)))
 
 model.add(Flatten())
 model.add(BatchNormalization())
-model.add(Dense(100, activation='relu'))
+model.add(Dense(512))
 model.add(Dropout(0.5))
 model.add(BatchNormalization())
-model.add(Dense(50, activation='relu'))
+model.add(Dense(256))
 model.add(Dropout(0.5))
 model.add(BatchNormalization())
-model.add(Dense(1, activation='relu'))
+model.add(Dense(1))
 
 model.compile(loss='mse', optimizer='adam')
 checkpointer = ModelCheckpoint(filepath="model_epoch{epoch:02d}.h5", verbose=1,
