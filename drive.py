@@ -47,6 +47,9 @@ controller = SimplePIController(0.1, 0.002)
 set_speed = 9
 controller.set_desired(set_speed)
 
+import cv2
+from BC_helper import random_crop
+img_rows, img_cols = 64, 64
 
 @sio.on('telemetry')
 def telemetry(sid, data):
@@ -61,6 +64,7 @@ def telemetry(sid, data):
         imgString = data["image"]
         image = Image.open(BytesIO(base64.b64decode(imgString)))
         image_array = np.asarray(image)
+        image_array, _ = random_crop(image_array, img_rows, img_cols, rand=False)
         steering_angle = float(model.predict(image_array[None, :, :, :], batch_size=1))
 
         throttle = controller.update(float(speed))

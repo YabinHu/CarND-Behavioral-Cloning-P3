@@ -14,8 +14,9 @@ train_samples, validation_samples = train_test_split(lines, test_size=0.25)
 
 from sklearn.utils import shuffle
 import random
+from BC_helper import generate_training_example, generate_validating_example
 
-def generator(samples, batch_size=32, in_train=False):
+def generator(samples, new_height, new_width, batch_size=32, in_train=True):
     num_samples = len(samples)
     while 1: # Loop forever so the generator never terminates
         shuffle(samples)
@@ -24,35 +25,27 @@ def generator(samples, batch_size=32, in_train=False):
 
             images = []
             angles = []
-            correction = 0.2
             for batch_sample in batch_samples:
                 center_angle = float(batch_sample[3])
                 name = './data/IMG/'+batch_sample[0].split('/')[-1]
                 center_image = cv2.imread(name)
-                if random.randint(0, 100) % 3 == 0: # flip 1/3 samples
-                    center_image = np.fliplr(center_image)
-                    center_angle = -center_angle
-                images.append(center_image)
-                angles.append(center_angle)
-
+                name = './data/IMG/'+batch_sample[1].split('/')[-1]
+                left_image = cv2.imread(name)
+                name = './data/IMG/'+batch_sample[2].split('/')[-1]
+                right_image = cv2.imread(name)
+                sample_image = np.array((new_height, new_width,
+                                         center_image.shape[-1]))
+                sample_angle = 0.0
                 if in_train:
-                    name = './data/IMG/'+batch_sample[1].split('/')[-1]
-                    left_image = cv2.imread(name)
-                    left_angle = center_angle + correction
-                    if random.randint(0, 100) % 3 == 0:
-                        left_image = np.fliplr(left_image)
-                        left_angle = -left_angle
-                    images.append(left_image)
-                    angles.append(left_angle)
+                    sample_image, sample_angle = generate_training_example(
+                        center_image, left_image, right_image, center_angle,
+                        new_height, new_width)
+                else:
+                    sample_image, sample_angle = generate_validating_example(
+                        center_image, center_angle, new_height, new_width)
 
-                    name = './data/IMG/'+batch_sample[2].split('/')[-1]
-                    right_image = cv2.imread(name)
-                    right_angle = center_angle - correction
-                    if random.randint(0, 100) % 3 == 0:
-                        right_image = np.fliplr(right_image)
-                        right_angle = -right_angle
-                    images.append(right_image)
-                    angles.append(right_angle)
+                images.append(sample_image)
+                angles.append(sample_angle)
 
             # trim image to only see section with road
             X_train = np.array(images)
@@ -61,13 +54,15 @@ def generator(samples, batch_size=32, in_train=False):
 
 # compile and train the model using the generator function
 batch_size = 32
-train_generator = generator(train_samples, batch_size=batch_size,
-                            in_train=True)
-validation_generator = generator(validation_samples, batch_size=batch_size,
-                                 in_train=False)
+new_height, new_width = 64, 64
+
+train_generator = generator(train_samples, new_height, new_width,
+                            batch_size=batch_size, in_train=True)
+validation_generator = generator(validation_samples, new_height, new_width,
+                                 batch_size=batch_size, in_train=False)
 
 from keras.models import Sequential, Model
-from keras.layers import Cropping2D, Convolution2D, Dense, Flatten
+from keras.layers import Convolution2D, Dense, Flatten
 from keras.layers import ZeroPadding2D, MaxPooling2D
 from keras.layers import BatchNormalization, Lambda, Dropout
 from keras.callbacks import ModelCheckpoint, Callback
@@ -83,9 +78,8 @@ class LossHistory(Callback):
 row, col, ch = 160, 320, 3 # For tf backend
 
 model = Sequential()
-model.add(Cropping2D(cropping=((70, 20), (0, 0)), input_shape=(row, col, ch)))
-model.add(Lambda(lambda x: x / 127.5 - 1.0, input_shape=(row - 90, col, ch),
-                 output_shape=(row - 90, col, ch)))
+model.add(Lambda(lambda x: x / 127.5 - 1.0, input_shape=(new_height, new_width, ch),
+                 output_shape=(new_height, new_width, ch)))
 
 model.add(Convolution2D(3, (1, 1), padding='same', name='color_conv'))
 model.add(ZeroPadding2D((2, 2)))
