@@ -113,6 +113,9 @@ model.add(BatchNormalization())
 model.add(Dense(1))
 
 model.compile(loss='mse', optimizer='adam')
+from keras_sequential_ascii import sequential_model_to_ascii_printout
+sequential_model_to_ascii_printout(model)
+
 checkpointer = ModelCheckpoint(filepath="model_epoch{epoch:02d}.h5", verbose=1,
                                monitor='val_loss', save_best_only=True,
                                mode='min')
